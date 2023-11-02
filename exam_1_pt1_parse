@@ -3,6 +3,7 @@ import os
 import re
 import glob
 from bs4 import BeautifulSoup
+import csv
 
 if not os.path.exists("parsed_files"):
 	os.mkdir("parsed_files")
@@ -18,40 +19,51 @@ for file_name in glob.glob("html_files/*.html"):
 
 	body = soup.find("body", {"class": "color-0 flex flex-col min-h-screen overflow-x-hidden"})
 	main_list = body.find_all("main")
-	ghid = []
-	num_repo = []
-	num_follow = []
-	date = []
+	ghid_list = []
+	num_repo_list = []
+	num_follow_list = []
+	date_list = []
 	for main in main_list:
-	
-		ghid_list=main.find("div", {"class": "userid"})
-		num_repo_list=main.find("div", {"class": "repocount"})
-		num_follow_list=main.find("div", {"class": "followercount"})
-		date_list=main.find("div", {"class": "membersince"})
-		ghid = ghid_list.text
-		num_repo = num_repo_list.text
-		num_follow = num_follow_list.text
-		date = date_list.text
-
-		print(ghid)
-		print(num_repo)
-		print(num_follow)
-		print(date)
-
-		
-
-		dataset = pandas.concat([dataset,
-			pandas.DataFrame.from_records([{
-				"ghid": ghid,
-				"num_repo": num_repo,
-				"num_follow": num_follow,
-				"date": date
+		ghid_list = main.find_all("div", {"class": "userid"})
+		for ghid in ghid_list:
+			id_list = ghid.get_text()
+			row1 = pandas.DataFrame.from_records([{
+				"ID": id_list
 				}])
+		num_repo_list = main.find_all("div", {"class": "repocount"})
+		for num_repo in num_repo_list:
+			b = num_repo.get_text()
+			row2 = pandas.DataFrame.from_records([{
+				"Repo Count": b
+				}])
+		num_follow_list = main.find_all("div", {"class": "followercount"})
+		for num_follow in num_follow_list:
+			c = num_follow.get_text()
+			row3 = pandas.DataFrame.from_records([{
+				"Follower Count": c
+				}])
+			print(row3)
+		date_list = main.find_all("div", {"class": "membersince"})
+		for date in date_list:
+			a = date.get_text()
+			row4 = pandas.DataFrame.from_records([{
+				"Member Since": a
+				}])
+			print(row4)
+		
+		with open('some.csv', 'w') as file:
+			writer = csv.writer(file)
+			writer .writerow(['Login ID', 'Repo Count', 'Follower Count', 'Member Since'])
+			writer.writerows(zip(ghid_list, num_repo_list, num_follow_list, date_list))
+		df = pd.read_csv('some.csv', sep="\t or,")
+		df.drop_duplicates(subset=None, inplace=True)
+		df.to_csv('some_no_dup.csv', index=False)
 
-			])
 
 dataset.to_csv("parsed_files/dataset.csv", index=False)
 
+
+		
 	
 
 	

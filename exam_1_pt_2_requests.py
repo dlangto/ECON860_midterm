@@ -9,15 +9,15 @@ if not os.path.exists("json_files"):
 
 access_point = "https://api.github.com"
 
-f = open("token", "r")
+f = open("mytoken.py", "r")
 token = f.read()
-f.close()
+print(token)
 
 id_list = pandas.read_csv("parsed_files/seed.csv")
 id_list = id_list['ghid']
 
 github_session = requests.Session()
-github_session.auth = ("dlangto", "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")
+github_session.auth = ("dlangto", "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")
 
 response_text = github_session.get(access_point + "/rate_limit").text
 print(json.loads(response_text))

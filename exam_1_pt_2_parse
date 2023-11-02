@@ -2,6 +2,7 @@ import json
 import pandas
 import os
 import glob
+import matplotlib.pyplot as plt
 
 if not os.path.exists("parsed_files"):
   os.mkdir("parsed_files")
@@ -10,14 +11,13 @@ if not os.path.exists("parsed_files"):
 dataset = pandas.DataFrame()
 
 for json_file_name in glob.glob("json_files/*.json"):
-  # json_file_name = "json_files/dAAAb.json"
 
   f = open(json_file_name, "r")
   json_data = json.load(f)
   f.close()
-
-  # print(json_data)
-
+  public_repos = json_data['public_repos']
+  followers = json_data['followers']
+  login = json_data['login']
   avatar_url = json_data['avatar_url']
   url = json_data['url']
   starred_url = json_data['starred_url']
@@ -33,23 +33,10 @@ for json_file_name in glob.glob("json_files/*.json"):
   updated_at = json_data['updated_at']
 
 
-
-
-  print(avatar_url)
-  print(url)
-  print(starred_url)
-  print(following)
-  print(name)
-  print(company)
-  print(blog)
-  print(location)
-  print(email)
-  print(hireable)
-  print(bio)
-  print(created_at)
-  print(updated_at)
-
   row = pandas.DataFrame.from_records([{
+        'public_repos': public_repos,
+        'followers': followers,
+        'login': login,
         'avatar_url': avatar_url,
         'url': url,
         'starred_url': updated_at,
@@ -66,10 +53,17 @@ for json_file_name in glob.glob("json_files/*.json"):
 
       }])
 
-  print(row)
   dataset = pandas.concat([dataset, row])
 
 
 
 dataset.to_csv("parsed_files/github_user_data.csv"
                 , index=False)
+x = dataset['followers']
+y = dataset['public_repos']
+plt.scatter(x,y)
+plt.show()
+#This scatterplot shows the relationship between the number of public repos a user
+#has and the amount of followers they have. Based on the graph, it does not look like 
+#there is much correlation. This does suprise me. I would have thought more repos would lead to 
+#more followers, but that is not the case.
